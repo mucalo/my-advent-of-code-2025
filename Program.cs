@@ -25,7 +25,19 @@ double ms = 0;
 //s += ms;
 
 // Task 2.2
-Console.Write("02.2, solution: " + Task02.Part2());
+//Console.Write("02.2, solution: " + Task02.Part2());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+//// Task 3.1
+//Console.Write("03.1, solution: " + Task03.Part1());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+// Task 3.2
+Console.Write("03.2, solution: " + Task03.Part2());
 ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
 Console.WriteLine(" in " + ms + " ms.");
 s += ms;

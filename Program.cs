@@ -54,14 +54,26 @@ double ms = 0;
 //Console.WriteLine(" in " + ms + " ms.");
 //s += ms;
 
-// Task 5.1
+//// Task 5.1
 //Console.Write("05.1, solution: " + Task05.Part1());
 //ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
 //Console.WriteLine(" in " + ms + " ms.");
 //s += ms;
 
 //// Task 5.2
-Console.Write("05.2, solution: " + Task05.Part2());
+//Console.Write("05.2, solution: " + Task05.Part2());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+//// Task 6.1
+//Console.Write("06.1, solution: " + Task06.Part1());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+// Task 6.2
+Console.Write("06.2, solution: " + Task06.Part2());
 ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
 Console.WriteLine(" in " + ms + " ms.");
 s += ms;

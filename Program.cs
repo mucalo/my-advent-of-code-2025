@@ -72,8 +72,27 @@ double ms = 0;
 //Console.WriteLine(" in " + ms + " ms.");
 //s += ms;
 
-// Task 6.2
-Console.Write("06.2, solution: " + Task06.Part2());
+//// Task 6.2
+//Console.Write("06.2, solution: " + Task06.Part2());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+//// Task 7.1
+//Console.Write("07.1, solution: " + Task07.Part1());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+//// Task 7.2 --- NOT FINISHED!!!!!!!
+//Console.Write("07.2, solution: " + Task07.Part2());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+// Task 9.1
+Console.Write("09.1, solution: " + Task09.Part1());
 ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
 Console.WriteLine(" in " + ms + " ms.");
 s += ms;
+

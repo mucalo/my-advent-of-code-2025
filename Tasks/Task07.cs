@@ -118,6 +118,7 @@ namespace AdventOfCode2025.Tasks
 
                 if (wasLineAltered)
                 {
+                    nextBeams = nextBeams.Distinct().ToList();
                     distinctLines.Add(nextBeams);
                     wasLineAltered = false;
                 }
@@ -125,10 +126,10 @@ namespace AdventOfCode2025.Tasks
 
             // Now we have all Beams and all Beams in previous step.
             // We go backwards
-            int[][] count = new int[distinctLines.Count][];
-            for (int i = distinctLines.Count - 1; i > 0; i--)
+            long[][] count = new long[distinctLines.Count][];
+            for (int i = distinctLines.Count - 1; i >= 0; i--)
             {
-                count[i] = new int[lines[0].Length];
+                count[i] = new long[lines[0].Length];
                 
                 // If it is the last line, just take into account the last line!
                 if (i == distinctLines.Count - 1 )
@@ -138,23 +139,32 @@ namespace AdventOfCode2025.Tasks
                         count[i][item] = 1;
                     }
                 }
-                // Result for this point in this line is the sum of the ones to the left and ones to the right!
+                // Result for this point in this line is the sum of the ones to the left and ones to the right
                 else
                 {
-                    foreach (var item in distinctLines[i])
+                    for (int j = 0; j < lines[0].Length; j++)
                     {
-                        var left = item - 1 > 0 ? count[i + 1][item - 1] : 0;
-                        var right = item + 1 < lines[0].Length - 1 ? count[i + 1][item + 1] : 0;
-                        count[i][item] = left + right;
+                        if (distinctLines[i].Contains(j))
+                        {
+                            // We are in a column in the top row that contains a ray.
+                            // If the row directly below contains a ray then just copy it.
+                            if (distinctLines[i + 1].Contains(j))
+                            {
+                                count[i][j] = count[i + 1][j];
+                            }
+                            // Otherwise if the row directly below is a break, then sum left and right
+                            else
+                            {
+                                if (j > 0) count[i][j] += count[i + 1][j-1];
+                                if (j < lines[0].Length - 1) count[i][j] += count[i + 1][j + 1];
+                            }
+                        }
                     }
                 }
 
-                foreach (var item in count[i])
-                    Console.Write(item.ToString().PadLeft(3, ' '));
-                Console.WriteLine();
             }
 
-            return s;
+            return count[0].Sum();
         }
 
         private static long CountPossibilities(int beam, int nextLine, string[] lines)

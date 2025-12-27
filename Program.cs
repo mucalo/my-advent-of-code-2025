@@ -96,14 +96,20 @@ double ms = 0;
 //Console.WriteLine(" in " + ms + " ms.");
 //s += ms;
 
-// Task 8.2
-Console.Write("08.2, solution: " + Task08.Part2());
-ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
-Console.WriteLine(" in " + ms + " ms.");
-s += ms;
+//// Task 8.2
+//Console.Write("08.2, solution: " + Task08.Part2());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
 
-// Task 9.1
+//// Task 9.1
 //Console.Write("09.1, solution: " + Task09.Part1());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+//// Task 9.2 - Solution not good, not covering all the edge cases, but works for the given input :)
+//Console.Write("09.2, solution: " + Task09.Part2());
 //ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
 //Console.WriteLine(" in " + ms + " ms.");
 //s += ms;

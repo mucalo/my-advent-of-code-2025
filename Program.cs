@@ -114,8 +114,14 @@ double ms = 0;
 //Console.WriteLine(" in " + ms + " ms.");
 //s += ms;
 
-// Task 10.1 
-Console.Write("10.1, solution: " + Task10.Part1());
+//// Task 10.1 
+//Console.Write("10.1, solution: " + Task10.Part1());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+// Task 10.2 
+Console.Write("10.2, solution: " + Task10.Part2());
 ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
 Console.WriteLine(" in " + ms + " ms.");
 s += ms;

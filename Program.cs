@@ -120,9 +120,20 @@ double ms = 0;
 //Console.WriteLine(" in " + ms + " ms.");
 //s += ms;
 
-// Task 10.2 
-Console.Write("10.2, solution: " + Task10.Part2());
+// Task 10.2 - NOT SOLVED
+//Console.Write("10.2, solution: " + Task10.Part2());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+//// Task 11.1
+//Console.Write("11.1, solution: " + Task11.Part1());
+//ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
+//Console.WriteLine(" in " + ms + " ms.");
+//s += ms;
+
+// Task 11.2
+Console.Write("11.2, solution: " + Task11.Part2());
 ms = (DateTime.Now - dateTimeStart).TotalMilliseconds - s;
 Console.WriteLine(" in " + ms + " ms.");
 s += ms;
-

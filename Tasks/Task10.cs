@@ -1,8 +1,10 @@
-﻿using System;
+﻿using AdventOfCode2025.Helpers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,23 +35,291 @@ namespace AdventOfCode2025.Tasks
 
         public static long Part2()
         {
+            bool isDebug = false;
             var lines = File.ReadAllLines("../../../Inputs/10.1.txt");
             string msg;
             List<int[]> buttons = new List<int[]>();
             int[] joltage;
-            int i = 0;
             long s = 0;
             int counter = 0;
+            int lineIndex = 0;
 
             foreach (var line in lines)
             {
                 ParseLine2(line, out msg, out buttons, out joltage);
-                int minMoves = SolveKnapsackFor2(buttons, joltage);
-                s += minMoves;
-                Console.WriteLine("Completed line: " + counter++);
+
+                List<int> fixedVariables = new();
+                List<int> looseVariables = new();
+                Rational[] resultVector = null;
+                int[] limitationsOfVariables = new int[buttons.Count];
+                var minSum = int.MaxValue;
+
+                for (int i = 0; i < limitationsOfVariables.Length; i++) limitationsOfVariables[i] = int.MaxValue;
+
+                for (int i = 0; i < buttons.Count; i++)
+                {
+                    for (int j = 0; j < buttons[i].Length; j++)
+                    {
+                        if (buttons[i][j] == 1)
+                        {
+                            // This could affect the minimum!
+                            if (joltage[j] < limitationsOfVariables[i]) limitationsOfVariables[i] = joltage[j];
+                        }
+                    }
+                }
+
+                var matrix = GetRREFMatrix(buttons, joltage, out fixedVariables, out looseVariables, out resultVector);
+
+                if (isDebug)
+                {
+                    PrintMatrixAndVector(matrix, resultVector);
+                    Console.WriteLine();
+                }
+
+                // If there are loose variables, then you need to iterate over all their possibilities
+                if (looseVariables.Count > 0)
+                {
+                    // We need to iterate over all loose variables up to their maximum
+                    int[] counters = new int[looseVariables.Count];
+                    while (counters[counters.Length - 1] <= limitationsOfVariables[looseVariables[looseVariables.Count - 1]])
+                    {
+                        int[] fixedSolutions = new int[fixedVariables.Count];
+
+                        // Try and calcuate the final values with parameters from counters
+                        for (int fixedIndex = 0; fixedIndex < fixedVariables.Count; fixedIndex++)
+                        {
+                            Rational sum = resultVector[fixedIndex];
+                            for (int looseIndex = 0; looseIndex < looseVariables.Count; looseIndex++)
+                            {
+                                sum = sum - matrix[fixedIndex][looseVariables[looseIndex]] * Rational.FromInt(counters[looseIndex]);
+                            }
+
+
+
+                            if (sum.ToDecimal() < 0)
+                                fixedSolutions[fixedIndex] = 100000;    // HACK
+                            else if (sum.ToDecimal() % 1 != 0)
+                                fixedSolutions[fixedIndex] = 100000;    // HACK
+                            else
+                                fixedSolutions[fixedIndex] = (int)sum.ToDecimal();
+
+                        }
+
+                        if (isDebug)
+                            PrintSums(fixedSolutions, fixedVariables, looseVariables, counters);
+
+                        var sumForCurrentLooseCombo = fixedSolutions.Sum(x => x) + counters.Sum();
+                        if (sumForCurrentLooseCombo < minSum) minSum = sumForCurrentLooseCombo;
+
+                        // Increase the counters
+                        int indexOfCounter = 0;
+                        while (indexOfCounter < counters.Length)
+                        {
+                            counters[indexOfCounter]++;
+                            if (counters[indexOfCounter] > limitationsOfVariables[looseVariables[indexOfCounter]])
+                            {
+                                // Overflow happening
+                                counters[indexOfCounter] = 0;
+                                indexOfCounter++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        if (indexOfCounter == counters.Length) break;
+                    }
+                    s += minSum;
+                    //Console.WriteLine("Min sum for line is " + minSum);
+                    //Console.WriteLine("Press any key to continue the loop.\n\n\n");
+                    //Console.ReadKey();
+                    if (isDebug)
+                        Console.WriteLine(lineIndex + " => " + minSum);
+                }
+                // If no loose variables, then I have a perfect upper right triangle matrix and I should be just reading the results?
+                else
+                {
+                    Rational sumOfVectorRational = new Rational(0,1);
+                    for (int xx = 0; xx < resultVector.Length; xx++)
+                    {
+                        sumOfVectorRational += resultVector[xx];
+                    }
+                    if (sumOfVectorRational.ToDecimal() % 1 == 0)
+                    {
+                        s += (long)sumOfVectorRational.ToDecimal();
+                        if (isDebug)
+                            Console.WriteLine( lineIndex + " => " + sumOfVectorRational.ToDecimal());
+                    }
+                }
+
+                lineIndex++;
             }
 
             return s;
+        }
+
+        private static void PrintSums(int[] fixedSolutions, List<int> fixedVariables, List<int> looseVariables, int[] counters)
+        {
+            var sum = fixedSolutions.Sum(x => x) + counters.Sum();
+            //if (sum > 10000) return;
+
+            for (int i = 0; i < counters.Length; i++)
+            {
+                Console.Write($"X{looseVariables[i]} = {counters[i]}; ");
+            }
+            Console.Write(" => ");
+            for (int i = 0; i < fixedSolutions.Length; i++)
+            {
+                Console.Write($"X{fixedVariables[i]} = {fixedSolutions[i]};");
+
+            }
+            Console.WriteLine($" ====> SUM = {sum}");
+
+        }
+
+        private static void PrintMatrixAndVector(Rational[][] matrix, Rational[] vector)
+        {
+            for (int i = 0; i < matrix.Length; i++)
+            {
+                for (int j = 0; j < matrix[i].Length; j++)
+                {
+                    Console.Write(matrix[i][j].ToString().PadLeft(10));
+                }
+
+                Console.WriteLine(" | " + vector[i].ToString().PadLeft(10));
+            }
+        }
+
+
+        private static Rational[][] GetRREFMatrix(List<int[]> buttons, int[] joltage,
+            out List<int> fixedVariables,
+            out List<int> looseVariables,
+            out Rational[] resultVector)
+        {
+            bool isDebugMode = false;
+
+            // Create result vector
+            resultVector = new Rational[joltage.Length];
+            for (int i = 0; i < joltage.Length; i++) resultVector[i] = new Rational(joltage[i], 1);
+
+
+
+            // Create initial matrix with arrays
+            Rational[][] matrix = new Rational[joltage.Length][];
+            for (int i = 0; i < joltage.Length; i++)
+            {
+                matrix[i] = new Rational[buttons.Count];
+                for (int j = 0; j < buttons.Count; j++)
+                {
+                    matrix[i][j] = new Rational(buttons[j][i], 1);
+                }
+
+            }
+            if (isDebugMode)
+            {
+                Console.WriteLine();
+                PrintMatrixAndVector(matrix, resultVector);
+                Console.ReadKey();
+            }
+
+            fixedVariables = new List<int>();
+            looseVariables = new List<int>();
+
+            int nextPivotRowIndex = 0;
+            for (int pivotColumn = 0; pivotColumn < buttons.Count; pivotColumn++)
+            {
+                int pivotRow = -1;
+                for (int row = nextPivotRowIndex; row < matrix.Length; row++)
+                {
+                    if (matrix[row][pivotColumn].ToDecimal() != 0)
+                    {
+                        fixedVariables.Add(pivotColumn);
+
+                        pivotRow = row;
+
+                        // This is going to be the row with our pivot element.
+                        // Step 1: Get the row to have 1 in pivot element.
+                        if (matrix[row][pivotColumn].ToDecimal() != 1)
+                        {
+                            var pivotElement = matrix[row][pivotColumn];
+                            // divide the whole row by the pivotElement
+                            for (int j = 0; j < matrix[row].Length; j++)
+                            {
+                                matrix[row][j] /= pivotElement;
+                            }
+                            // divid the result vectors row by pivotElement
+                            resultVector[row] /= pivotElement;
+                        }
+
+                        if (isDebugMode)
+                        {
+                            Console.WriteLine("After normalizing row " + row + " to be the pivot row for pivot column " + pivotColumn);
+                            PrintMatrixAndVector(matrix, resultVector);
+                            Console.ReadKey();
+                        }
+
+                        // now pivotColumn is 1, we can proceed.
+
+                        // Step 2: Get each other row to have 0 in that column:
+                        for (int modifyRow = 0; modifyRow < matrix.Length; modifyRow++)
+                        {
+                            if (modifyRow == row) continue;     // do not apply to myself
+
+                            // Factor for modification
+                            var factorToModifyOriginalRowAndSum = new Rational(-1* matrix[modifyRow][pivotColumn].Num, matrix[modifyRow][pivotColumn].Den);
+
+                            // For each column in each row add the pivot row modified by the factor
+                            for (int k = 0; k < matrix[modifyRow].Length; k++)
+                            {
+                                matrix[modifyRow][k] += factorToModifyOriginalRowAndSum * matrix[row][k];
+                            }
+
+                            // Do the same for the final vector
+                            resultVector[modifyRow] += resultVector[row] * factorToModifyOriginalRowAndSum;
+
+                            if (isDebugMode)
+                            {
+                                Console.WriteLine("After row " + modifyRow + " has been set to 0 in column" + pivotColumn + " with factor " + factorToModifyOriginalRowAndSum);
+                                PrintMatrixAndVector(matrix, resultVector);
+                                Console.ReadKey();
+                            }
+                        }
+
+                        // We have pivoted around the pivotRow X
+                        // Now we need to swap that row with row nextPivotRowIndex and then take it from there.
+                        // We need to make the same swap in the resultVector
+                        if (pivotRow != nextPivotRowIndex)
+                        {
+                            var tempRow = matrix[pivotRow];
+                            matrix[pivotRow] = matrix[nextPivotRowIndex];
+                            matrix[nextPivotRowIndex] = tempRow;
+
+                            var tempInt = resultVector[pivotRow];
+                            resultVector[pivotRow] = resultVector[nextPivotRowIndex];
+                            resultVector[nextPivotRowIndex] = tempInt;
+                        }
+
+                        if (isDebugMode)
+                        {
+                            Console.WriteLine("After 'sort':");
+                            PrintMatrixAndVector(matrix, resultVector);
+                            Console.ReadKey();
+                        }
+
+                        // We are finished with indexing the row, increase counter and end loop
+                        nextPivotRowIndex++;
+                        break;
+                    }
+                }
+
+                // If not added to fixed then add to loose
+                if (!fixedVariables.Contains(pivotColumn)) looseVariables.Add(pivotColumn);
+
+            }
+
+
+            return matrix;
         }
 
         /// <summary>

@@ -70,7 +70,7 @@
                     if (LinesCrossingMiddle(point1, point2, points)) continue;
 
                     long area = (Math.Abs(point1.X - point2.X) + 1) * (Math.Abs(point1.Y - point2.Y) + 1);        // TODO is +1 inside or outside abs?
-                    Console.WriteLine($"Considering ({point1.X},{point1.Y}) - ({point2.X},{point2.Y}) with A = {area}");
+                    // Console.WriteLine($"Considering ({point1.X},{point1.Y}) - ({point2.X},{point2.Y}) with A = {area}");
                     if (area > max)
                     {
                         max = area;
